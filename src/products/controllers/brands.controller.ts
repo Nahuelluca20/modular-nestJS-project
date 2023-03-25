@@ -6,41 +6,43 @@ import {
   Body,
   Put,
   Delete,
-  ParseIntPipe,
+  HttpCode,
+  HttpStatus,
 } from '@nestjs/common';
 
 import { BrandsService } from '../services/brands.service';
 import { CreateBrandDto, UpdateBrandDto } from '../dtos/brand.dtos';
+import { ApiTags } from '@nestjs/swagger';
+import { MongoIdPipe } from '@/common';
 
+@ApiTags('brands')
 @Controller('brands')
 export class BrandsController {
   constructor(private brandsService: BrandsService) {}
 
   @Get()
-  findAll() {
+  getProducts() {
     return this.brandsService.findAll();
   }
 
-  @Get(':id')
-  get(@Param('id', ParseIntPipe) id: number) {
-    return this.brandsService.findOne(id);
+  @Get(':productId')
+  @HttpCode(HttpStatus.ACCEPTED)
+  async getOne(@Param('productId', MongoIdPipe) productId: string) {
+    return await this.brandsService.findOne(productId);
   }
 
   @Post()
-  create(@Body() payload: CreateBrandDto) {
+  create(@Body() payload: CreateBrandDto): Promise<any> {
     return this.brandsService.create(payload);
   }
 
   @Put(':id')
-  update(
-    @Param('id', ParseIntPipe) id: number,
-    @Body() payload: UpdateBrandDto,
-  ) {
+  update(@Param('id') id: string, @Body() payload: UpdateBrandDto) {
     return this.brandsService.update(id, payload);
   }
 
   @Delete(':id')
-  remove(@Param('id', ParseIntPipe) id: number) {
-    return this.brandsService.remove(+id);
+  delete(@Param('id') id: string) {
+    return this.brandsService.remove(id);
   }
 }
